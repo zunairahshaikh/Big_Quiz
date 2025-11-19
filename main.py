@@ -1,7 +1,5 @@
 import pgzrun
-import pygame
 from pygame import Rect
-from pygame import Color
 from pgzero.clock import schedule_interval
 import random
 import os
@@ -12,7 +10,6 @@ WIDTH = 1280
 HEIGHT = 720
 
 # --- Custom Pixel Font ---
-# Using the pixel font from your folder
 pixel_font = "pixeltype"
 
 # Use the same pixel font for all text sizes
@@ -21,13 +18,17 @@ large_font = pixel_font
 medium_font = pixel_font
 small_font = pixel_font
 
-# cat images
+# Cat images
 cat_images = [
     Actor("cat1"),
     Actor("cat2"),
     Actor("cat3"),
     Actor("cat4")
 ]
+
+# Background images
+bg_image = Actor("firstfinal")  # For starting page
+main_background = Actor("mainback")  # For all question screens
 
 # --- Boxes setup ---
 main_box = Rect(0, 0, 820, 240)
@@ -144,30 +145,50 @@ easy_questions = load_questions_from_file("easy.txt")
 medium_questions = load_questions_from_file("medium.txt")
 hard_questions = load_questions_from_file("hard.txt")
 
+# Set default question set
+questions = medium_questions.copy()
+random.shuffle(questions)
+current_questions = questions.pop(0) if questions else ["No questions loaded!", "-", "-", "-", "-", 1]
 
-# questions = medium_questions.copy()
-# random.shuffle(questions)
-# current_questions = questions.pop(0)
 
 # --- Draw everything with pixel font ---
 def draw():
-    screen.fill(pygame.Color("#ffdddd"))
-
     if starting_page:
+        # For starting page, use firstbg image
         draw_starting_page()
     elif name_input_active:
+        # For name input, use mainback image
+        main_background.pos = (WIDTH // 2, HEIGHT // 2)
+        main_background.draw()
         draw_name_input()
     elif player_selection_active:
+        # For player selection, use mainback image
+        main_background.pos = (WIDTH // 2, HEIGHT // 2)
+        main_background.draw()
         draw_player_selection()
     elif not difficulty_selected and not name_input_active and not game_active and not starting_page:
+        # For difficulty selection, use mainback image
+        main_background.pos = (WIDTH // 2, HEIGHT // 2)
+        main_background.draw()
         draw_difficulty_selection()
     elif game_active:
+        # For game active, use mainback image
+        main_background.pos = (WIDTH // 2, HEIGHT // 2)
+        main_background.draw()
         draw_game_active()
     else:
+        # For game over, use mainback image
+        main_background.pos = (WIDTH // 2, HEIGHT // 2)
+        main_background.draw()
         draw_game_over()
 
 
 def draw_starting_page():
+    # Draw background image covering the entire screen
+    bg_image.pos = (WIDTH // 2, HEIGHT // 2)
+    bg_image.draw()
+
+    # Draw welcome text on top of background
     screen.draw.text(
         "Welcome to the Quiz Game!",
         center=(WIDTH // 2, HEIGHT // 2 - 200),
@@ -226,7 +247,7 @@ def draw_player_selection():
         screen.draw.filled_rect(player_rect, box_color)
         screen.draw.rect(player_rect, border_color)
 
-        # DRAW CAT IMAGE INSTEAD OF PLACEHOLDER
+        # DRAW CAT IMAGE
         image_x = player_x + player_box_width // 2
         image_y = player_y + player_box_height // 2 - 20
 
@@ -278,38 +299,39 @@ def draw_difficulty_selection():
 
 
 def draw_game_active():
-    screen.draw.filled_rect(main_box, "sky blue")
-    screen.draw.filled_rect(timer_box, "sky blue")
+    # Draw semi-transparent boxes for better readability
+    screen.draw.filled_rect(main_box, (135, 206, 235, 200))  # sky blue with transparency
+    screen.draw.filled_rect(timer_box, (135, 206, 235, 200))  # sky blue with transparency
+
+    for box in answer_boxes:
+        screen.draw.filled_rect(box, (255, 165, 0, 200))  # orange with transparency
 
     screen.draw.text(
         f"level {level}",
         (60, 60),
-        color="black",
+        color="white",
         fontsize=60,
         fontname=title_font
     )
     screen.draw.text(
         f"Lives: {lives}",
         (WIDTH - 200, 60),
-        color="red",
+        color="white",
         fontsize=48,
         fontname=large_font
     )
 
-    for box in answer_boxes:
-        screen.draw.filled_rect(box, "orange")
-
     screen.draw.text(
         str(time_left),
         center=timer_box.center,
-        color="black",
+        color="white",
         fontsize=72,
         fontname=title_font
     )
     screen.draw.text(
         current_questions[0],
         center=main_box.center,
-        color="black",
+        color="white",
         fontsize=48,
         align="center",
         fontname=large_font
@@ -320,7 +342,7 @@ def draw_game_active():
         screen.draw.text(
             current_questions[index],
             center=box.center,
-            color="black",
+            color="white",
             fontsize=36,
             fontname=medium_font
         )
@@ -331,7 +353,7 @@ def draw_game_over():
     screen.draw.text(
         game_over_message,
         center=(WIDTH // 2, HEIGHT // 2 - 120),
-        color="green" if "New High Score" in game_over_message else "red",
+        color="gold" if "New High Score" in game_over_message else "red",
         fontsize=72,
         fontname=title_font
     )
@@ -397,7 +419,7 @@ def draw_game_over():
     )
 
 
-# --- Game functions (remain the same) ---
+# --- Game functions ---
 def next_level():
     global level, time_left
     level += 1
