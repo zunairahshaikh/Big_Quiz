@@ -15,19 +15,18 @@ HEIGHT = 720
 # Using the pixel font from your folder
 pixel_font = "pixeltype"
 
-
 # Use the same pixel font for all text sizes
 title_font = pixel_font
-large_font = pixel_font  
+large_font = pixel_font
 medium_font = pixel_font
 small_font = pixel_font
 
 # cat images
 cat_images = [
-   Actor("cat1"),
-   Actor("cat2"),
-   Actor("cat3"),
-   Actor("cat4") 
+    Actor("cat1"),
+    Actor("cat2"),
+    Actor("cat3"),
+    Actor("cat4")
 ]
 
 # --- Boxes setup ---
@@ -68,12 +67,12 @@ difficulty = "Medium"
 player_selection_active = False
 selected_player = None
 
-# Player characters data
+# Player characters data WITH IMAGE REFERENCES
 players = [
-    {"name": "OLIVIA", "color": "pink", "selected": False},
-    {"name": "SAMIRA", "color": "purple", "selected": False},
-    {"name": "KIM", "color": "lightblue", "selected": False},
-    {"name": "DREW", "color": "lightgreen", "selected": False}
+    {"name": "OLIVIA", "color": "pink", "selected": False, "image": cat_images[0]},
+    {"name": "SAMIRA", "color": "purple", "selected": False, "image": cat_images[1]},
+    {"name": "KIM", "color": "lightblue", "selected": False, "image": cat_images[2]},
+    {"name": "DREW", "color": "lightgreen", "selected": False, "image": cat_images[3]}
 ]
 
 # Player selection boxes
@@ -94,6 +93,7 @@ no_button = Rect(WIDTH // 2 + 100, HEIGHT - 100, 150, 60)
 # Highscores
 highscores = []
 
+
 def load_highscores():
     global highscores
     highscores = []
@@ -113,12 +113,15 @@ def load_highscores():
     highscores.sort(key=lambda x: x[0], reverse=True)
     highscores = highscores[:3]
 
+
 def save_highscores():
     with open(highscore_file, "w", encoding="utf-8") as f:
         for score, name in highscores:
             f.write(f"{score},{name}\n")
 
+
 load_highscores()
+
 
 # --- Loading questions from file (if exists) ---
 def load_questions_from_file(filename):
@@ -135,10 +138,12 @@ def load_questions_from_file(filename):
                         print("Error loading question:", e)
     return questions
 
+
 # --- Question Sets by Difficulty ---
 easy_questions = load_questions_from_file("easy.txt")
 medium_questions = load_questions_from_file("medium.txt")
 hard_questions = load_questions_from_file("hard.txt")
+
 
 # questions = medium_questions.copy()
 # random.shuffle(questions)
@@ -147,7 +152,7 @@ hard_questions = load_questions_from_file("hard.txt")
 # --- Draw everything with pixel font ---
 def draw():
     screen.fill(pygame.Color("#ffdddd"))
-    
+
     if starting_page:
         draw_starting_page()
     elif name_input_active:
@@ -160,6 +165,7 @@ def draw():
         draw_game_active()
     else:
         draw_game_over()
+
 
 def draw_starting_page():
     screen.draw.text(
@@ -178,6 +184,7 @@ def draw_starting_page():
         fontname=large_font
     )
 
+
 def draw_name_input():
     screen.draw.text(
         "Enter your name and press Enter:",
@@ -194,6 +201,7 @@ def draw_name_input():
         fontname=large_font
     )
 
+
 def draw_player_selection():
     screen.draw.text(
         "PLAYERS",
@@ -202,22 +210,31 @@ def draw_player_selection():
         fontsize=72,
         fontname=title_font
     )
-    
+
     for i, player in enumerate(players):
         player_x = players_start_x + i * (player_box_width + player_spacing)
         player_y = players_start_y
-        
+
         if player["selected"]:
             box_color = "gold"
             border_color = "yellow"
         else:
             box_color = player["color"]
             border_color = "white"
-        
+
         player_rect = Rect(player_x, player_y, player_box_width, player_box_height)
         screen.draw.filled_rect(player_rect, box_color)
         screen.draw.rect(player_rect, border_color)
-        
+
+        # DRAW CAT IMAGE INSTEAD OF PLACEHOLDER
+        image_x = player_x + player_box_width // 2
+        image_y = player_y + player_box_height // 2 - 20
+
+        # Position and draw the cat image
+        player["image"].pos = (image_x, image_y)
+        player["image"].draw()
+
+        # Draw player name below the image
         screen.draw.text(
             player["name"],
             center=(player_x + player_box_width // 2, player_y + player_box_height - 40),
@@ -225,17 +242,7 @@ def draw_player_selection():
             fontsize=36,
             fontname=medium_font
         )
-        
-        circle_center = (player_x + player_box_width // 2, player_y + player_box_height // 2 - 20)
-        screen.draw.filled_circle(circle_center, 80, "white")
-        screen.draw.text(
-            "CAT",
-            center=circle_center,
-            color="black",
-            fontsize=24,
-            fontname=small_font
-        )
-    
+
     if selected_player is not None:
         screen.draw.filled_rect(continue_button, "green")
         screen.draw.text(
@@ -245,6 +252,7 @@ def draw_player_selection():
             fontsize=36,
             fontname=medium_font
         )
+
 
 def draw_difficulty_selection():
     screen.draw.text(
@@ -268,21 +276,22 @@ def draw_difficulty_selection():
             fontname=large_font
         )
 
+
 def draw_game_active():
     screen.draw.filled_rect(main_box, "sky blue")
     screen.draw.filled_rect(timer_box, "sky blue")
 
     screen.draw.text(
-        f"level {level}", 
-        (60, 60), 
-        color="black", 
+        f"level {level}",
+        (60, 60),
+        color="black",
         fontsize=60,
         fontname=title_font
     )
     screen.draw.text(
-        f"Lives: {lives}", 
-        (WIDTH - 200, 60), 
-        color="red", 
+        f"Lives: {lives}",
+        (WIDTH - 200, 60),
+        color="red",
         fontsize=48,
         fontname=large_font
     )
@@ -291,9 +300,9 @@ def draw_game_active():
         screen.draw.filled_rect(box, "orange")
 
     screen.draw.text(
-        str(time_left), 
-        center=timer_box.center, 
-        color="black", 
+        str(time_left),
+        center=timer_box.center,
+        color="black",
         fontsize=72,
         fontname=title_font
     )
@@ -309,13 +318,14 @@ def draw_game_active():
     index = 1
     for box in answer_boxes:
         screen.draw.text(
-            current_questions[index], 
-            center=box.center, 
-            color="black", 
+            current_questions[index],
+            center=box.center,
+            color="black",
             fontsize=36,
             fontname=medium_font
         )
         index += 1
+
 
 def draw_game_over():
     screen.draw.text(
@@ -376,7 +386,7 @@ def draw_game_over():
         fontsize=36,
         fontname=large_font
     )
-    
+
     screen.draw.filled_rect(no_button, "red")
     screen.draw.text(
         "NO",
@@ -386,11 +396,13 @@ def draw_game_over():
         fontname=large_font
     )
 
+
 # --- Game functions (remain the same) ---
 def next_level():
     global level, time_left
     level += 1
     time_left = 10
+
 
 def game_over():
     global game_active, time_left, score, player_name, highscores, game_over_message
@@ -409,6 +421,7 @@ def game_over():
     else:
         game_over_message = f"Game Over! Final Score: {score}"
 
+
 def correct_answer():
     global score, time_left, questions, current_questions, game_active
     score += 1
@@ -421,6 +434,7 @@ def correct_answer():
         time_left = 0
         current_questions = [f"You Win! Final Score: {score}", "-", "-", "-", "-", 5]
         game_over()
+
 
 def on_mouse_down(pos):
     global starting_page, name_input_active, difficulty_selected, game_active
@@ -436,14 +450,14 @@ def on_mouse_down(pos):
             player_x = players_start_x + i * (player_box_width + player_spacing)
             player_y = players_start_y
             player_rect = Rect(player_x, player_y, player_box_width, player_box_height)
-            
+
             if player_rect.collidepoint(pos):
                 for p in players:
                     p["selected"] = False
                 player["selected"] = True
                 selected_player = player["name"]
                 break
-        
+
         if selected_player is not None and continue_button.collidepoint(pos):
             player_selection_active = False
             difficulty_selected = False
@@ -476,7 +490,7 @@ def on_mouse_down(pos):
                     lives -= 1
                     if lives <= 0:
                         game_over()
-    
+
     elif not game_active and not name_input_active and not player_selection_active and difficulty_selected:
         if yes_button.collidepoint(pos):
             score = 0
@@ -494,6 +508,7 @@ def on_mouse_down(pos):
                 player["selected"] = False
         elif no_button.collidepoint(pos):
             exit()
+
 
 def on_key_down(key):
     global game_active, score, level, time_left, current_questions, questions, lives
@@ -531,11 +546,11 @@ def on_key_down(key):
                 start_game()
 
 
-
 def start_game():
     global game_active, current_questions
     game_active = True
     current_questions = questions.pop(0)
+
 
 def update_time_left():
     global time_left
@@ -544,6 +559,7 @@ def update_time_left():
             time_left -= 1
         else:
             game_over()
+
 
 schedule_interval(update_time_left, 1.0)
 
